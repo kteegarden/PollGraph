@@ -15,29 +15,7 @@ weeks = []
 for week in df:
     weeks.append(int(week)) # This function gets the # of weeks in each dataset (basically, the x-axis)
 
-print(weeks)
-
 available_teams = df.index.unique()
-
-test = df.loc['Virginia',:].values
-print(test)
-
-# df['Total Votes'] = df.sum(axis=1)
-# ranked_teams = df[df['Total Votes'] > 0].values # returns each ranked team as a list with name then votes
-#
-# teams = []
-# for team in ranked_teams:
-#     teams.append(
-#         go.Scatter(
-#             x=weeks,
-#             y=team[1:],
-#             name=team[0],
-#             line = dict(
-#                 color = team_data.loc[team[0],'Primary Color'], #select team color from database
-#                 width = 4)
-#             )
-#         )
-
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -48,7 +26,8 @@ app.layout = html.Div([
         dcc.Dropdown(
             id='team_name',
             options=[{'label': i, 'value': i} for i in available_teams],
-            value='Virginia'
+            value=['Virginia'],
+            multi=True
         )
     ],
     style={'width': '48%', 'display': 'inline-block'}),
@@ -62,15 +41,21 @@ app.layout = html.Div([
     [dash.dependencies.Input('team_name','value')]
 )
 def update_graph(team_name):
+    data = []
+    for name in team_name:
+        data.append(
+            go.Scatter(
+                x=weeks,
+                y=df.loc[name, :],
+                name=name,
+                line=dict(
+                    color=team_data.loc[name, 'Primary Color'],
+                    width=4
+                )
+            )
+        )
     return {
-        'data': [go.Scatter(
-            x=weeks,
-            y=df.loc[team_name, :],
-            name=team_name,
-            line = dict(
-                color = team_data.loc[team_name,'Primary Color'],
-                width = 4)
-        )],
+        'data': data,
         'layout': go.Layout(
             xaxis={'title': 'Week'},
             yaxis={'title': 'Votes in the Coaches Poll'}
