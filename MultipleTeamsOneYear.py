@@ -27,11 +27,10 @@ app.layout = html.Div([
             id='team_name',
             options=[{'label': i, 'value': i} for i in available_teams],
             value=['Virginia'],
-            placeholder='Select a team...',
             multi=True
         )
     ],
-    style={'margin': 'auto', 'width': '45%', 'padding': '20px'}),
+    style={'width': '48%', 'display': 'inline-block'}),
 
     dcc.Graph(id='poll-graph')
 
@@ -49,14 +48,10 @@ def update_graph(team_name):
                 x=weeks,
                 y=df.loc[name, :],
                 name=name,
-                mode='lines',
                 line=dict(
                     color=team_data.loc[name, 'Primary Color'],
                     width=4
-                ),
-                hoverlabel=dict(
-                     bgcolor='#FFFFFF'
-                 )
+                )
             )
         )
     return {
