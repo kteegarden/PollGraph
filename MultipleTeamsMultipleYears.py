@@ -82,12 +82,18 @@ def update_graph(team_name, year_selector):
         'data': data,
         'layout': go.Layout(
             title='Coaches Poll Data',
-            xaxis={'title': 'Week'},
+            xaxis=dict(
+                title='Week',
+                tickmode='array',
+                tickvals=dff.loc['Absolute_Week',:].values,
+                ticktext=dff.loc['Week',:].values
+            ),
+            #xaxis={'title': 'Week'},
             yaxis={'title': 'Votes in the Coaches Poll'}
         )
     }
 
-def get_year_limited_data(year_selector):
+def get_year_limited_data(year_selector): #Takes a range of dates and returns a modified dataframe with that date range
     list_of_dfs = []
     start_year = year_selector[0]
 
