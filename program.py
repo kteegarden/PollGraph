@@ -11,13 +11,6 @@ df = pd.read_csv(file_path, encoding='latin1', index_col='Team')  # Deal with Sa
 file_path2 = os.path.join('C:/Users/Kyle Teegarden/Documents/Python Project/PollGraph', 'team_data.csv')
 team_data = pd.read_csv(file_path2, encoding='latin1', index_col='School')
 
-# dff = df.filter(like='2016')
-# print(dff)
-# dff2 = df.filter(like='2017')
-# print(dff2)
-# result = pd.concat([dff,dff2], axis=1)
-# print(result)
-
 weeks = df.loc['Absolute_Week',:].values #Get X-values from data
 
 available_teams = df.index.unique().values[2:] #Get list of teams, throwing away the "Week" and "Absolute_Week" rows
@@ -72,8 +65,8 @@ def update_graph(team_name, year_selector):
     for name in team_name:
         data.append(
             go.Scatter(
-                x=weeks,
-                y=df.loc[name, :],
+                x=dff.loc['Absolute_Week',:].values,
+                y=dff.loc[name, :],
                 name=name,
                 mode='lines',
                 line=dict(
