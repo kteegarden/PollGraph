@@ -62,7 +62,7 @@ app.layout = html.Div([
             step=None
             ),
         ],
-        style={'margin': 'auto', 'width': '30%', 'padding': '20px'})
+        style={'margin': 'auto', 'width': '70%', 'padding': '20px'})
 
 ])
 
@@ -106,7 +106,8 @@ def update_graph(team_name, year_selector):
                 showgrid=False
             ),
             yaxis={'title': 'Votes in the Coaches Poll'},
-            shapes=draw_shading(dff.loc['Week',:].values, dff.loc['Absolute_Week',:].values) #Creates the dicts for each shaded rectangle
+            shapes=draw_shading(dff.loc['Week',:].values, dff.loc['Absolute_Week',:].values), #Creates the dicts for each shaded rectangle
+            annotations=generate_annotations(year_selector, dff.loc['Week',:].values, dff.loc['Absolute_Week',:].values)
         )
     }
 
@@ -146,6 +147,48 @@ def draw_shading(relative_week_values, absolute_week_values):
         previous_week = relative_week
 
     return rectangles
+
+def generate_annotations(year_range, relative_week_values, absolute_week_values): #Takes week and year data and prints year above each shaded block
+    annotations = []
+    previous_week = 0
+    current_year = 0
+
+    for relative_week, absolute_week in zip(relative_week_values, absolute_week_values):
+
+        if relative_week < previous_week:  # Create annotation over shade block when the weeks roll over
+            x_position = absolute_week - previous_week/2
+            annotations.append(dict(
+                x=x_position,
+                y=1.1,
+                showarrow=False,
+                text=str(year_range[0] + current_year),
+                xref='x',
+                yref='paper',
+                font=dict(
+                    size=15,
+                    color='#d3d3d3'
+                )
+            ))
+            current_year += 1
+
+        if absolute_week == absolute_week_values[-1]:  # If last block
+            x_position = absolute_week - previous_week / 2
+            annotations.append(dict(
+                x=x_position,
+                y=1.1,
+                showarrow=False,
+                text=str(year_range[0] + current_year),
+                xref='x',
+                yref='paper',
+                font=dict(
+                    size=15,
+                    color='#d3d3d3'
+                )
+            ))
+
+        previous_week = relative_week
+
+    return annotations
 
 
 if __name__ == '__main__':
