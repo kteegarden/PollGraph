@@ -43,7 +43,7 @@ app.layout = html.Div([
         dcc.Dropdown(
             id='team_name',
             options=[{'label': i, 'value': i} for i in available_teams],
-            value=['Virginia'],
+            value=['Virginia'],  # Default values for team selector
             placeholder='Select a team...',
             multi=True
         )
@@ -72,10 +72,8 @@ app.layout = html.Div([
      dash.dependencies.Input('year-selector', 'value')]
 )
 def update_graph(team_name, year_selector):
-    # dff = []
-    # for year in year_selector
 
-    dff = get_year_limited_data(year_selector)
+    dff = get_year_limited_data(year_selector)  # Limit data by year
 
     data = []
     for name in team_name:
@@ -95,7 +93,7 @@ def update_graph(team_name, year_selector):
             )
         )
     return {
-        'data': data,
+        #'data': data,
         'layout': go.Layout(
             title='Coaches Poll Data',
             xaxis=dict(
@@ -103,12 +101,15 @@ def update_graph(team_name, year_selector):
                 tickmode='array',
                 tickvals=dff.loc['Absolute_Week',:].values,
                 ticktext=dff.loc['Week',:].values,
-                showgrid=False
+                showgrid=False,
+                showticklabels=tick_labels_shown(year_selector)
+
             ),
             yaxis={'title': 'Votes in the Coaches Poll'},
             shapes=draw_shading(dff.loc['Week',:].values, dff.loc['Absolute_Week',:].values), #Creates the dicts for each shaded rectangle
             annotations=generate_annotations(year_selector, dff.loc['Week',:].values, dff.loc['Absolute_Week',:].values)
-        )
+        ),
+        'data' : data
     }
 
 
@@ -135,11 +136,11 @@ def draw_shading(relative_week_values, absolute_week_values):
 
         if relative_week < previous_week and shade: #Create shade block when the weeks roll over
             rectangles.append(dict(type=type, xref='x', yref='paper', x0=str(absolute_week - previous_week - .5), y0='0',
-                                   x1=str(absolute_week - .5), y1='1', fillcolor=fill_color, opacity=opacity,
+                                   x1=str(absolute_week - .5), y1='1', fillcolor=fill_color, opacity=opacity, layer = 'below',
                                    line=dict(width=0)))
         if absolute_week == absolute_week_values[-1] and shade: #If last shade block
              rectangles.append(dict(type=type, xref='x', yref='paper', x0=str(absolute_week - previous_week - .5), y0='0',
-                                    x1=str(absolute_week), y1='1', fillcolor=fill_color, opacity=opacity,
+                                    x1=str(absolute_week), y1='1', fillcolor=fill_color, opacity=opacity, layer = 'below',
                                     line=dict(width=0)))
         if relative_week == 1: #Alternate shadyness
             shade = not shade
@@ -189,6 +190,15 @@ def generate_annotations(year_range, relative_week_values, absolute_week_values)
         previous_week = relative_week
 
     return annotations
+
+
+def tick_labels_shown(years):  # returns a true value if the year range is 4 years or less. This is done so that the week labels don't overlap each other.
+    show_ticks = False
+    number_of_years = years[-1] - years[0] + 1
+    if number_of_years <= 4:
+        show_ticks = True
+
+    return show_ticks
 
 
 if __name__ == '__main__':
